@@ -39,11 +39,12 @@ noflag() { local FLAG; eval FLAG='$FLAGS_'$1; [ $FLAG -ne $FLAGS_TRUE ]; }
 #
 
 # get all available branches
-LOCAL_BRANCHES=$(git branch | sed 's/^[* ] //')
-REMOTE_BRANCHES=$(git branch -r | sed 's/^[* ] //')
+if git rev-parse --git-dir >/dev/null 2>&1; then
+    LOCAL_BRANCHES=$(git branch | sed 's/^[* ] //')
+    REMOTE_BRANCHES=$(git branch -r | sed 's/^[* ] //')
+    ALL_TAGS=$(git tag)
+fi
 ALL_BRANCHES="$LOCAL_BRANCHES $REMOTE_BRANCHES"
-ALL_TAGS=$(git tag)
-
 #
 # resolve_nameprefix
 #

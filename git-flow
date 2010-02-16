@@ -18,12 +18,17 @@ if [ "$DEBUG" = "yes" ]; then
 	set -x
 fi
 
-export GITFLOW_DIR=$(dirname "$0")
-export GIT_DIR=$(git rev-parse --git-dir)
-export MASTER_BRANCH=$(git config --get gitflow.branch.master || echo master)
-export DEVELOP_BRANCH=$(git config --get gitflow.branch.develop || echo develop)
-export ORIGIN=$(git config --get gitflow.origin || echo origin)
-export README=$(git config --get gitflow.readme || echo README)
+initialise() {
+    export GITFLOW_DIR=$(dirname "$0")
+    if git rev-parse --git-dir >/dev/null 2>&1; then
+        export GIT_DIR=$(git rev-parse --git-dir)
+        export MASTER_BRANCH=$(git config --get gitflow.branch.master || echo master)
+        export DEVELOP_BRANCH=$(git config --get gitflow.branch.develop || echo develop)
+        export ORIGIN=$(git config --get gitflow.origin || echo origin)
+        export README=$(git config --get gitflow.readme || echo README)
+    fi
+	. "$GITFLOW_DIR/gitflow-common"
+}
 
 usage() {
 	echo "usage: git flow <subcommand>"
@@ -46,7 +51,7 @@ main() {
 	fi
 
 	# load common functionality
-	. "$GITFLOW_DIR/gitflow-common"
+    initialise
 
 	# use the shFlags project to parse the command line arguments
 	. "$GITFLOW_DIR/gitflow-shFlags"
@@ -62,7 +67,7 @@ main() {
 		exit 1
 	fi
 
-	if ! git rev-parse --git-dir >/dev/null; then
+	if ! git rev-parse --git-dir >/dev/null 2>&1 && [ "$SUBCOMMAND" != "init" ]; then
 		die "Not a git repository"
 	fi
 
